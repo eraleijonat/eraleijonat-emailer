@@ -1,3 +1,4 @@
+import _root_.akka.actor.ActorSystem
 import fi.eraleijonat.emailer._
 import org.scalatra._
 import javax.servlet.ServletContext
@@ -5,7 +6,7 @@ import javax.servlet.ServletContext
 class ScalatraBootstrap extends LifeCycle {
 
   override def init(context: ServletContext) {
-    context.mount(new EmailerServlet, "/*")
+    context.mount(new EmailerServlet(ActorSystem("actors")), "/*")
   }
 
 }
