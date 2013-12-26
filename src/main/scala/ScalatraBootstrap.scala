@@ -6,7 +6,7 @@ import javax.servlet.ServletContext
 class ScalatraBootstrap extends LifeCycle {
 
   override def init(context: ServletContext) {
-    context.mount(new EmailerServlet(ActorSystem("actors")), "/*")
+    context.mount(new EmailerServlet, "/*")
   }
 
 }

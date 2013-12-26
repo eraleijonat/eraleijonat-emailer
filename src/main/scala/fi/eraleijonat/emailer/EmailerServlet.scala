@@ -7,9 +7,9 @@ import dispatch.Future
 import dispatch.as
 import scala.concurrent.{Promise, ExecutionContext}
 
-class EmailerServlet(system: ActorSystem) extends ScalatraServlet with FutureSupport {
+class EmailerServlet extends ScalatraServlet with FutureSupport {
 
-  protected implicit def executor: ExecutionContext = system.dispatcher
+  protected implicit def executor: ExecutionContext = ActorSystem("actors").dispatcher
 
   val apiKey              = System.getenv("mailgun_api_key")
   val apiLogin            = System.getenv("mailgun_api_login")
