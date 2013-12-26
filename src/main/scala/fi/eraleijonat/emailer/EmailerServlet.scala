@@ -6,8 +6,9 @@ import dispatch.Future
 import dispatch.as
 import scala.concurrent.{Promise, ExecutionContext}
 import org.scalatra.json.JacksonJsonSupport
-import org.json4s.{JField, DefaultFormats, Formats}
-import org.json4s.JsonAST.JString
+import org.json4s.{StringInput, JField, DefaultFormats, Formats}
+import org.json4s.JsonAST.{JObject, JString}
+import scala.util.Try
 
 class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport with JacksonJsonSupport {
 
@@ -41,13 +42,16 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
     }
   }
 
-  def sendNewMemberMail(): Future[String] = {
-    val promise = Promise[String]()
+  def sendNewMemberMail(): Future[JObject] = {
+    val promise = Promise[JObject]()
 
     // Halt if a required field is not present in parameters.
     newMemberFieldsRequired.foreach(requiredParam => {
       if ((parsedBody \ requiredParam).asInstanceOf[JString].s.isEmpty) {
-        halt(status = 400, body = requiredParam + " missing")
+        halt(
+          status = 400,
+          body = JObject(JField("fail", JString("missing_" + requiredParam)))
+        )
       }
     })
 
@@ -57,14 +61,19 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
     // Send email using mailgun
     val req = dispatch.url(apiUrl).POST.secure
       .as_!("api", apiKey)
-      .addParameter("from",     "noreply@era-leijonat.fi")
-      .addParameter("to",       newMemberRecipients)
+      .addParameter("from",    "noreply@era-leijonat.fi")
+      .addParameter("to",      newMemberRecipients)
       .addParameter("subject", "Uusi jäsenhakemus lippukunnan nettisivuilla")
-      .addParameter("text",     "Uusi jäsen haluaa liittyä lippukuntaan:\n\n" + data.mkString("\n"))
+      .addParameter("text",    "Uusi jäsen haluaa liittyä lippukuntaan:\n\n" + data.mkString("\n"))
 
     // Asynchronous HTTP using Dispatch
-    dispatch.Http(req OK as.String).onComplete({
-      case res => promise.complete(res)
+    val result: Future[String] = dispatch.Http(req OK as.String)
+
+    result.onSuccess({
+      case res => promise.complete(Try(JObject(JField("success", JString("email sent")))))
+    })
+    result.onFailure({
+      case res => promise.complete(Try(JObject(JField("fail", JString(res.toString)))))
     })
 
     promise.future
