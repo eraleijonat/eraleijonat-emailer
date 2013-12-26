@@ -6,9 +6,8 @@ import org.scalatra._
 import dispatch.Future
 import dispatch.as
 import scala.concurrent.{Promise, ExecutionContext}
-import javax.servlet.http.HttpServletResponse
 
-class EmailerServlet extends ScalatraServlet with FutureSupport {
+class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport {
 
   protected implicit def executor: ExecutionContext = ActorSystem("actors").dispatcher
 
@@ -23,8 +22,8 @@ class EmailerServlet extends ScalatraServlet with FutureSupport {
   val newMemberFieldsRequired: Seq[String] = Seq("firstNames", "lastName", "address", "dob")
   val newMemberFieldsOptional: Seq[String] = Seq("phone", "email", "huoltaja-name", "huoltaja-phone", "huoltaja-email", "details")
 
-  before() {
-    response.setHeader("Access-Control-Allow-Origin", "*")
+  options("/*"){
+    response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"))
   }
 
   def requireEnvsPresent(): Unit = {
