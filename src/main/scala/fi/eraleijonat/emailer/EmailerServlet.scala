@@ -20,7 +20,7 @@ class EmailerServlet(system: ActorSystem) extends ScalatraServlet with FutureSup
   val apiUrl = "https://api.mailgun.net/v2/" + apiLogin + "/messages"
 
   val newMemberFieldsRequired: Seq[String] = Seq("firstNames", "lastName", "address", "dob")
-  val newMemberFieldsOptional: Seq[String] = Seq("phone", "email", "huoltaja-name", "huoltaja-phone", "huoltaja-email")
+  val newMemberFieldsOptional: Seq[String] = Seq("phone", "email", "huoltaja-name", "huoltaja-phone", "huoltaja-email", "details")
 
   def requireEnvsPresent(): Unit = {
     Seq(apiKey, apiLogin, newMemberRecipients).foreach(
