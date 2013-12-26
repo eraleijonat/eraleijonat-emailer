@@ -50,13 +50,13 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
       if ((parsedBody \ requiredParam).asInstanceOf[JString].s.isEmpty) {
         halt(
           status = 400,
-          body = JObject(JField("fail", JString("missing_" + requiredParam)))
+          body = JObject(JField("fail", JString("Pakollinen kenttä " + Localize(requiredParam) + " on tyhjä!")))
         )
       }
     })
 
     val formFields: Seq[JField] = parsedBody.filterField(field => newMemberFieldsRequired.contains(field._1) || newMemberFieldsOptional.contains(field._1))
-    val data: Map[String, String] = formFields.map(field => (field._1, field._2.asInstanceOf[JString].s)).toMap
+    val data: Map[String, String] = formFields.map(field => (Localize(field._1), field._2.asInstanceOf[JString].s)).toMap
 
     // Send email using mailgun
     val req = dispatch.url(apiUrl).POST.secure
@@ -70,7 +70,7 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
     val result: Future[String] = dispatch.Http(req OK as.String)
 
     result.onSuccess({
-      case res => promise.complete(Try(JObject(JField("success", JString("email sent")))))
+      case res => promise.complete(Try(JObject(JField("success", JString("Kiitos, ja tervetuloa partioon! :) Hakemuksesi on lähetetty jäsenrekisterin hoitajalle.")))))
     })
     result.onFailure({
       case res => promise.complete(Try(JObject(JField("fail", JString(res.toString)))))
@@ -79,4 +79,25 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
     promise.future
   }
   
+}
+
+object Localize {
+
+  val fi = Map(
+    "firstNames"     -> "etunimet",
+    "lastName"       -> "sukunimi",
+    "address"        -> "osoite",
+    "dob"            -> "syntymäaika",
+    "phone"          -> "puhelinnumero",
+    "email"          -> "sähköpostiosoite",
+    "huoltaja-name"  -> "huoltajan nimi",
+    "huoltaja-phone" -> "huoltajan puhelinnumero",
+    "huoltaja-email" -> "huoltajan sähköpostiosoite",
+    "details"        -> "lisätiedot"
+  )
+
+  def apply(key: String) = {
+    fi.get(key).get
+  }
+
 }
