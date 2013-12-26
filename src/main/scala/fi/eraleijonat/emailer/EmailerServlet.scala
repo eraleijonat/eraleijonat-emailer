@@ -36,6 +36,11 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
     )
   }
 
+  post("/ping") {
+    contentType = "application/json"
+    Map("ping" -> "pong")
+  }
+
   post("/new-member") {
     new AsyncResult() {
       val is = sendNewMemberMail()
