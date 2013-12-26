@@ -1,15 +1,18 @@
 package fi.eraleijonat.emailer
 
-
 import _root_.akka.actor.ActorSystem
 import org.scalatra._
 import dispatch.Future
 import dispatch.as
 import scala.concurrent.{Promise, ExecutionContext}
+import org.scalatra.json.JacksonJsonSupport
+import org.json4s.{JField, DefaultFormats, Formats}
+import org.json4s.JsonAST.JString
 
-class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport {
+class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport with JacksonJsonSupport {
 
   protected implicit def executor: ExecutionContext = ActorSystem("actors").dispatcher
+  protected implicit val jsonFormats: Formats = DefaultFormats
 
   val apiKey              = System.getenv("mailgun_api_key")
   val apiLogin            = System.getenv("mailgun_api_login")
@@ -43,13 +46,13 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
 
     // Halt if a required field is not present in parameters.
     newMemberFieldsRequired.foreach(requiredParam => {
-      if (params.get(requiredParam).isEmpty) {
+      if ((parsedBody \ requiredParam).asInstanceOf[JString].s.isEmpty) {
         halt(status = 400, body = requiredParam + " missing")
       }
     })
 
-    // Collect all member info fields from params
-    val member: Map[String, String] = params.filterKeys(key => newMemberFieldsRequired.contains(key) || newMemberFieldsOptional.contains(key))
+    val formFields: Seq[JField] = parsedBody.filterField(field => newMemberFieldsRequired.contains(field._1) || newMemberFieldsOptional.contains(field._1))
+    val data: Map[String, String] = formFields.map(field => (field._1, field._2.asInstanceOf[JString].s)).toMap
 
     // Send email using mailgun
     val req = dispatch.url(apiUrl).POST.secure
@@ -57,7 +60,7 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
       .addParameter("from",     "noreply@era-leijonat.fi")
       .addParameter("to",       newMemberRecipients)
       .addParameter("subject", "Uusi jäsenhakemus lippukunnan nettisivuilla")
-      .addParameter("text",     member.mkString("\n"))
+      .addParameter("text",     "Uusi jäsen haluaa liittyä lippukuntaan:\n\n" + data.mkString("\n"))
 
     // Asynchronous HTTP using Dispatch
     dispatch.Http(req OK as.String).onComplete({
