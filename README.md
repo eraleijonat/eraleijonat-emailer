@@ -1,12 +1,12 @@
-# Eraleijonat emailer #
+# Erä-Leijonat member application form emailer
 
-## Build & Run ##
+This is a Scala app that receives form submissions as JSON and emails the data to the correct parties via Mailgun's API.
+
+## Build & run ##
+
+Set environment variables `mailgun_api_key`, `mailgun_api_login`, `new_member_recipients` (=comma-separated list of emails).
 
 ```sh
-$ cd Eraleijonat_emailer
-$ ./sbt
-> container:start
-> browse
+sbt compile
+sbt container:start
 ```
-
-If `browse` doesn't launch your browser, manually open [http://localhost:8080/](http://localhost:8080/) in your browser.
