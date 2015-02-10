@@ -1,7 +1,7 @@
-import _root_.akka.actor.ActorSystem
+import javax.servlet.ServletContext
+
 import fi.eraleijonat.emailer._
 import org.scalatra._
-import javax.servlet.ServletContext
 
 class ScalatraBootstrap extends LifeCycle {
 
