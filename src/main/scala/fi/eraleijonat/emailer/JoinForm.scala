@@ -2,7 +2,7 @@ package fi.eraleijonat.emailer
 
 object JoinForm extends Form {
 
-  val fields: Set[Field] = Set(
+  override val fields: Set[Field] = Set(
     Field("firstNames", "etunimet", true),
     Field("lastName", "sukunimi", true),
     Field("address", "osoite", true),

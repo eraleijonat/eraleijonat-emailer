@@ -6,9 +6,9 @@ trait Form {
 
   val fields: Set[Field]
 
-  val fieldNames: Set[String] = fields.map(_.name)
-  val requiredFields: Set[Field] = fields.filter(_.required)
-  val optionalFields: Set[Field] = fields.filterNot(_.required)
+  def fieldNames: Set[String] = fields.map(_.name)
+  def requiredFields: Set[Field] = fields.filter(_.required)
+  def optionalFields: Set[Field] = fields.filterNot(_.required)
 
   def fieldById(s: String): Field = fields.find(_.name == s).get
 }
