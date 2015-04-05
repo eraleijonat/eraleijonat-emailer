@@ -26,6 +26,8 @@ object JoinForm extends Form {
     Field("huoltaja-name", "huoltajan nimi"),
     Field("email", "sähköpostiosoite"),
 
+    Field("photo-publication-ok", "lupa valokuvien verkkojulkaisuun"),
+
     Field("details", "lisätiedot")
   )
 

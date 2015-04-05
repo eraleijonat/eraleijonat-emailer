@@ -52,7 +52,7 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
       if ((parsedBody \ f.id).asInstanceOf[JString].s.isEmpty) {
         halt(
           status = 400,
-          body = JObject(JField("fail", JString("Pakollinen kenttä " + f.name + " on tyhjä!")))
+          body   = JObject(JField("fail", JString("Pakollinen kenttä " + f.name + " on tyhjä!")))
         )
       }
     })
