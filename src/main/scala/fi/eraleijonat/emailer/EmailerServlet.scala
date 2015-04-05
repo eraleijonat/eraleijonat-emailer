@@ -57,7 +57,7 @@ class EmailerServlet extends ScalatraServlet with FutureSupport with CorsSupport
       }
     })
 
-    val validFields: Seq[JField] = parsedBody.filterField(f ⇒ JoinForm.fieldNames.contains(f._1))
+    val validFields: Seq[JField] = parsedBody.filterField(f ⇒ JoinForm.fieldIds.contains(f._1))
     val data: Map[String, String] = validFields.map(f ⇒ (JoinForm.fieldById(f._1).name, f._2.asInstanceOf[JString].s)).toMap
 
     // Send email using mailgun
